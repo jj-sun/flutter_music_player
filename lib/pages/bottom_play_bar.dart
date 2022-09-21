@@ -35,6 +35,7 @@ class _BottomPlayBarState extends State<BottomPlayBar> {
     super.initState();
     audioPlayer = AudioPlayer();
     //source = AssetSource("love.mp3")
+    _setListener();
     _setSource();
   }
 
@@ -46,16 +47,13 @@ class _BottomPlayBarState extends State<BottomPlayBar> {
   _setListener() {
     // 播放完成
     audioPlayer.onPlayerComplete.listen((event){
-      if(isPlaying == false) {
-        setState(() {
-          this.isPlaying = true;
-        });
-      }else {
-        setState(() {
-          this.isPlaying = false;
-        });
-      }
-      _position = Duration.zero;
+      setState(() {
+        isPlaying = false;
+        _position = Duration.zero;
+        audioPlayer.release();
+      });
+
+      //下一首
     });
     //监听时长
     audioPlayer.onDurationChanged.listen((d) {
@@ -93,11 +91,22 @@ class _BottomPlayBarState extends State<BottomPlayBar> {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)
         ),
-        leading: CircleAvatar(
-          radius: 20,
-          backgroundImage: AssetImage("assets/lady.jpeg"),
+        leading: InkWell(
+          child: CircleAvatar(
+            radius: 20,
+            backgroundImage: AssetImage("assets/lady.jpeg"),
+          ),
         ),
-        title: Text('爱要怎么说出口 - 赵传'),
+        title: TextButton(
+          child: Text(
+              '爱要怎么说出口 - 赵传',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.white
+            ),
+          ),
+          onPressed: () {},
+        ),
         actions: [
           IconButton(
             icon: isPlaying == false ? FaIcon(_icons[0]) : FaIcon(_icons[1]),
