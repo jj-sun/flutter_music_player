@@ -73,6 +73,7 @@ flutter:
     - assets/lady.jpeg
     - assets/music_record.jpeg
     - assets/love.mp3
+    - assets/toutou.m4a
     - audio/
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_music_player/model/music_info.dart';
 import 'package:flutter_music_player/model/music_tag_info.dart';
 import 'package:flutter_music_player/api/provider/qq.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_music_player/common/state/music_play_state.dart';
 
 import 'bottom_play_bar.dart';
 
@@ -26,6 +28,8 @@ class _PlayListState extends State<PlayList> {
 
   MusicTagInfo? tagInfo;
 
+  late MusicPlayState musicPlayState;
+
   _PlayListState(this.arguments);
 
   MusicTagInfo covertModel() {
@@ -38,6 +42,8 @@ class _PlayListState extends State<PlayList> {
       tagInfo = values['info'];
     });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +58,8 @@ class _PlayListState extends State<PlayList> {
         ),
       );
     }
+    musicPlayState = Provider.of(context);
+
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(musicTagInfo.getTitle),
@@ -101,7 +109,9 @@ class _PlayListState extends State<PlayList> {
                             fontSize: 18,
                           ),
                         ),
-                        onPressed: (){},
+                        onPressed: (){
+                          musicPlayState.playAll(tracks);
+                        },
                       ),
                     ],
                   ),
@@ -109,10 +119,16 @@ class _PlayListState extends State<PlayList> {
               } else {
                 return ListTile(
                     leading: Text((index).toString()),
-                    title: Text(tracks[index-1].getTitle),
+                    title: Text(tracks[index-1].getTitle, style:
+                      TextStyle(
+                        color: tracks[index-1].getDisabled ? Colors.red : Colors.black
+                      ),
+                    ),
                     subtitle: Text(tracks[index-1].getArtist),
                     trailing: IconButton(
-                        onPressed: (){},
+                        onPressed: (){
+                          musicPlayState.playNewMusic(tracks[index-1]);
+                        },
                         icon: Icon(Icons.not_started_outlined)
                     )
                 );

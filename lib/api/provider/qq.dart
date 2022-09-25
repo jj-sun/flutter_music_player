@@ -200,25 +200,30 @@ class QQUtil {
   }
 
   static Future<String> bootstrapTrack(String trackId) async {
+    if(trackId.isEmpty) {
+      return '';
+    }
     var songId = trackId.substring('qqtrack_'.length);
     var targetUrl =
     'https://u.y.qq.com/cgi-bin/musicu.fcg?loginUin=0&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0&data=%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%2210000%22%2C%22songmid%22%3A%5B%22${songId}%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%220%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A0%2C%22format%22%3A%22json%22%2C%22ct%22%3A20%2C%22cv%22%3A0%7D%7D';
 
 
-    var data = await RequestUtil.getAction(
+    String? data = await RequestUtil.getAction(
       targetUrl,
       headers: {
         'Referer': 'https://y.qq.com/',
         'User-Agent': 'Mozilla/5.0 (Linux; U; Android 8.1.0; zh-cn; BLA-AL00 Build/HUAWEIBLA-AL00) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 MQQBrowser/8.9 Mobile Safari/537.36',
       },
     );
+    print('获取的数据${data}');
     const JsonDecoder jsonDecoder = JsonDecoder();
-    var jsonData = jsonDecoder.convert(data.toString());
-    if(jsonData['req-0']['data']['midurlinfo'][0]['purl'] == '') {
+    var jsonData = jsonDecoder.convert(data!);
+    print('获取数据${jsonData['req_0']['data']['midurlinfo'][0]['purl']}');
+    if(jsonData['req_0']['data']['midurlinfo'][0]['purl'] == '') {
       return '';
     }
-    var url = jsonData['req-0']['data']['sip'][0] + jsonData['req-0']['data']['midurlinfo'][0]['purl'];
-
+    var url = jsonData['req_0']['data']['sip'][0] + jsonData['req_0']['data']['midurlinfo'][0]['purl'];
+    print('播放源:' + url);
     return url;
   }
 
