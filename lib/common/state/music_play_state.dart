@@ -48,9 +48,23 @@ class MusicPlayState extends ChangeNotifier {
     _play();
   }
 
+  void playMusicIndex(int index) {
+    if(index >= 0 && index < _currentPlayList.length) {
+      _currentIndex = index;
+      _play();
+    }
+  }
+
   void updatePlayItem(int index) {
     _currentIndex = index;
     musicPlay();
+  }
+
+  void remove(int index) {
+    if(index == _currentIndex) {
+      musicControlNext();
+    }
+    _currentPlayList.removeAt(index);
   }
 
   final AudioPlayer _audioPlayer = AudioPlayer();

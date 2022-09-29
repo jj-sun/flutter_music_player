@@ -14,16 +14,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   
   late TabController _tabController;
 
-  late List<MusicTagInfo> result = [];
+  Future<List<MusicTagInfo>> _result = QQUtil.showPlaylist(0);
 
-  void initPlayList() {
-    setState(() {
-      QQUtil.showPlaylist(0).then((value) => {
-        result = value.values.first
-      });
-    });
-  }
-  
   @override
   Widget build(BuildContext context) {
 
@@ -70,64 +62,30 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               controller: _tabController,
               children: [
                 Container(
-                  child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 11/18
-                    ),
-                    primary: false,
-                    padding: const EdgeInsets.all(1),
-                    itemCount: result.length,
-                    itemBuilder: (BuildContext context, int index){
-                      return Container(
-                          color: Colors.white,
-                          child: TextButton(
-                            child: Column(
-                              children: [
-                                AspectRatio(
-                                    aspectRatio: 7/9,
-                                    child: Container(
-                                      clipBehavior: Clip.hardEdge,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      //child: Image.asset('assets/lady.jpeg'),
-                                      child: Image.network(result[index].getCoverImgUrl,fit: BoxFit.cover,),
-                                    )
-                                ),
-                                Text(result[index].getTitle,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                )
-                              ],
-                            ),
-                            onPressed: () {
-                              print(result[index].getId);
-                              if(result[index] != null) {
-                                Navigator.of(context).pushNamed('/playList', arguments: {
-                                  'musicTagInfo': result[index]
-                                });
-                              }
-
-                            },
-                          ),
+                  child: FutureBuilder(
+                    future: _result,
+                    builder: (BuildContext context, AsyncSnapshot<List<MusicTagInfo>> snapshot) {
+                      var widget;
+                      if(snapshot.connectionState == ConnectionState.done) {
+                        if(snapshot.hasData) {
+                          widget = _buildData(snapshot.data);
+                        } else {
+                          widget = Container(
+                            child: Text('数据加载错误！'),
+                          );
+                        }
+                      } else {
+                        widget = Container(
+                          child: Text('数据加载中...！'),
                         );
-                    }
-                  )
+                      }
+                      return widget;
+                    },
+                  ),
                 ),
                 Text('网易云')
               ],
             ),
-            // Positioned(
-            //   left: 5,
-            //   right: 5,
-            //   bottom: 5,
-            //   child: BottomPlayBar()
-            // )
           ],
         ),
       ),
@@ -139,14 +97,62 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    _tabController = new TabController(length: 2, vsync: this);
-    _tabController.addListener(() { 
-      print(_tabController.index);
-      if(_tabController.index == 0) {
-       initPlayList();
-      }
+    _tabController = TabController(length: 2, vsync: this);
+  }
 
-    });
+  Widget _buildData(List<MusicTagInfo>? result) {
+    if(result == null) {
+      return Container(
+        child: Text('暂无数据！'),
+      );
+    } else {
+      return GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              childAspectRatio: 11/18
+          ),
+          primary: false,
+          padding: const EdgeInsets.all(1),
+          itemCount: result.length,
+          itemBuilder: (BuildContext context, int index){
+            return Container(
+              color: Colors.white,
+              child: TextButton(
+                child: Column(
+                  children: [
+                    AspectRatio(
+                        aspectRatio: 7/9,
+                        child: Container(
+                          clipBehavior: Clip.hardEdge,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          //child: Image.asset('assets/lady.jpeg'),
+                          child: Image.network(result[index].getCoverImgUrl,fit: BoxFit.cover,),
+                        )
+                    ),
+                    Text(result[index].getTitle,
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  ],
+                ),
+                onPressed: () {
+                  if(result[index] != null) {
+                    Navigator.of(context).pushNamed('/playList', arguments: {
+                      'musicTagInfo': result[index]
+                    });
+                  }
+                },
+              ),
+            );
+          }
+      );
+    }
 
   }
 }

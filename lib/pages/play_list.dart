@@ -137,7 +137,7 @@ class _PlayListState extends State<PlayList> {
         ),
       ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: BottomPlayBar()
+        floatingActionButton: BottomPlayBar(),
     );
   }
   
