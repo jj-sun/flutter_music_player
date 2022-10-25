@@ -30,24 +30,40 @@ class MusicPlayState extends ChangeNotifier {
   }
 
   void playAll(List<MusicInfo> list) {
-    print(list);
-    updatePlayList(list, 0);
-    _play();
+    //自动移除会员歌曲
+    List<MusicInfo> musicList = [];
+    list.forEach((element) {
+      if(element.getDisabled != true) {
+        musicList.add(element);
+      }
+    });
+
+    if(musicList.isNotEmpty) {
+      updatePlayList(list, 0);
+      _play();
+    }
   }
 
+  //从音乐列表中播放音乐
   void playNewMusic(MusicInfo musicInfo) {
+    bool flag = false;
     for(int index = 0; index < _currentPlayList.length; index++) {
       if(_currentPlayList[index].getId == musicInfo.getId) {
         _currentIndex = index;
         _play();
-        return;
+        flag = true;
+        break;
       }
     }
-    _currentPlayList.add(musicInfo);
-    _currentIndex = _currentPlayList.length - 1;
-    _play();
+    if(!flag) {
+      _currentPlayList.add(musicInfo);
+      _currentIndex = _currentPlayList.length - 1;
+      _play();
+    }
+    notifyListeners();
   }
 
+  //在播放列表中播放音乐
   void playMusicIndex(int index) {
     if(index >= 0 && index < _currentPlayList.length) {
       _currentIndex = index;

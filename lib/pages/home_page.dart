@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_music_player/model/music_tag_info.dart';
-import 'bottom_play_bar.dart';
+import '../common/Global.dart';
 import 'package:flutter_music_player/api/provider/qq.dart';
 
 class HomePage extends StatefulWidget {
@@ -90,7 +90,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: BottomPlayBar()
+      floatingActionButton: Global.bottomPlayBar
     );
   }
 
@@ -100,6 +100,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _tabController = TabController(length: 2, vsync: this);
   }
 
+  //构建数据列表UI
   Widget _buildData(List<MusicTagInfo>? result) {
     if(result == null) {
       return Container(

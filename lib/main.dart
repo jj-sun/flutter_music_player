@@ -4,7 +4,9 @@ import 'package:flutter_music_player/common/state/music_play_state.dart';
 import 'package:flutter_music_player/route/routes.dart';
 import 'package:provider/provider.dart';
 
-void main() => runApp(const MyApp());
+import 'common/Global.dart';
+
+void main() => Global.init().then((e) => runApp(const MyApp()));
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);

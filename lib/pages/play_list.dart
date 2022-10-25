@@ -6,7 +6,7 @@ import 'package:flutter_music_player/api/provider/qq.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_music_player/common/state/music_play_state.dart';
 
-import 'bottom_play_bar.dart';
+import '../common/Global.dart';
 
 class PlayList extends StatefulWidget {
 
@@ -137,7 +137,7 @@ class _PlayListState extends State<PlayList> {
         ),
       ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: BottomPlayBar(),
+        floatingActionButton: Global.bottomPlayBar,
     );
   }
   

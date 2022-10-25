@@ -13,7 +13,7 @@ class BottomPlayBar extends StatefulWidget {
 }
 
 class _BottomPlayBarState extends State<BottomPlayBar> {
-  late MusicPlayState musicPlayState;
+  late MusicPlayState musicPlayState = MusicPlayState.of(context);
 
   var _icons = [FontAwesomeIcons.circlePlay, FontAwesomeIcons.circlePause];
 
@@ -22,7 +22,7 @@ class _BottomPlayBarState extends State<BottomPlayBar> {
   @override
   void initState() {
     super.initState();
-    musicPlayState = MusicPlayState.of(context);
+    //musicPlayState =
   }
 
   Object _images(obj) {
@@ -120,8 +120,7 @@ class _BottomPlayBarState extends State<BottomPlayBar> {
                                                       onPressed: () {
                                                         musicPlayState.remove(index);
                                                       },
-                                                      icon: Icon(
-                                                          Icons.close)));
+                                                      icon: const Icon(Icons.close)));
                                             }
                                         ),
                                       )
