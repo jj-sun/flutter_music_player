@@ -10,150 +10,190 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
-  
-  late TabController _tabController;
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
 
-  Future<List<MusicTagInfo>> _result = QQUtil.showPlaylist(0);
+  final ScrollController _scrollController =  ScrollController();
 
-  @override
-  Widget build(BuildContext context) {
+  bool _hasMore = true;
 
-    double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth  = MediaQuery.of(context).size.width;
-
-    return Scaffold(
-      appBar: AppBar(
-        leading: const Center(
-          child: Text('MUSIC'),
-        ),
-        title: TextField(
-            decoration: InputDecoration(
-              hintText: '输入歌曲名，歌手',
-              border: OutlineInputBorder()
-            ),
-        ),
-        actions: [
-          IconButton(
-              icon: Icon(Icons.menu_outlined),
-              onPressed: (){}
-          )
-        ],
-      ),
-      body: Scaffold(
-        appBar: AppBar(
-          title: Row(
-            children: [
-              Expanded(
-                  child: TabBar(
-                    controller: _tabController,
-                    tabs: const [
-                      Tab(text: 'QQ',),
-                      Tab(text: '网易云',)
-                    ],
-                  )
-              )
-            ],
-          ),
-        ),
-        body: Stack(
-          children: [
-            TabBarView(
-              controller: _tabController,
-              children: [
-                Container(
-                  child: FutureBuilder(
-                    future: _result,
-                    builder: (BuildContext context, AsyncSnapshot<List<MusicTagInfo>> snapshot) {
-                      var widget;
-                      if(snapshot.connectionState == ConnectionState.done) {
-                        if(snapshot.hasData) {
-                          widget = _buildData(snapshot.data);
-                        } else {
-                          widget = Container(
-                            child: Text('数据加载错误！'),
-                          );
-                        }
-                      } else {
-                        widget = Container(
-                          child: Text('数据加载中...！'),
-                        );
-                      }
-                      return widget;
-                    },
-                  ),
-                ),
-                Text('网易云')
-              ],
-            ),
-          ],
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Global.bottomPlayBar
-    );
-  }
+  List<MusicTagInfo> _result = [];
+  int _count = 0;
+  int _page = 0;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+
+    _scrollController.addListener(() {
+      print(_scrollController.offset);
+      if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+        _loadData(false);
+      }
+    });
+    _page = 0;
+    _hasMore = true;
+    _loadData(true);
   }
 
-  //构建数据列表UI
-  Widget _buildData(List<MusicTagInfo>? result) {
-    if(result == null) {
-      return Container(
-        child: Text('暂无数据！'),
-      );
-    } else {
-      return GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              childAspectRatio: 11/18
-          ),
-          primary: false,
-          padding: const EdgeInsets.all(1),
-          itemCount: result.length,
-          itemBuilder: (BuildContext context, int index){
-            return Container(
-              color: Colors.white,
-              child: TextButton(
-                child: Column(
-                  children: [
-                    AspectRatio(
-                        aspectRatio: 7/9,
-                        child: Container(
-                          clipBehavior: Clip.hardEdge,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          //child: Image.asset('assets/lady.jpeg'),
-                          child: Image.network(result[index].getCoverImgUrl,fit: BoxFit.cover,),
-                        )
-                    ),
-                    Text(result[index].getTitle,
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.black
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    )
-                  ],
-                ),
-                onPressed: () {
-                  if(result[index] != null) {
-                    Navigator.of(context).pushNamed('/playList', arguments: {
-                      'musicTagInfo': result[index]
-                    });
-                  }
-                },
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    return DefaultTabController(
+        initialIndex: 0,
+        length: 2,
+        child: Scaffold(
+            appBar: AppBar(
+              primary: true,
+              toolbarTextStyle: const TextStyle(color: Colors.black),
+              backgroundColor: Colors.white70,
+              leading: const Center(
+                child: Text('听海'),
               ),
-            );
-          }
-      );
+              //centerTitle: true,
+              title: const TextField(
+                cursorColor: Colors.green,
+                decoration: InputDecoration(
+                  isDense: true,
+                  contentPadding: EdgeInsets.all(10),
+                  hintText: '输入歌曲名，歌手',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                    gapPadding: 4,
+                  ),
+
+                ),
+
+              ),
+              actions: [
+                IconButton(
+                    icon: const Icon(Icons.menu_outlined),
+                    color: Colors.black,
+                    onPressed: () {})
+              ],
+              bottom: const TabBar(
+                unselectedLabelColor: Colors.black54,
+                labelColor: Colors.black,
+                indicatorColor: Colors.black,
+                tabs: [
+                  Tab(
+                    text: 'QQ',
+                  ),
+                  Tab(
+                    text: '网易云',
+                  )
+                ],
+              ),
+            ),
+            body: TabBarView(
+              children: [
+                Container(
+                  child: _result.length < 1 ? _buildLoading() : _buildData(),
+                ),
+                Text('网易云')
+              ],
+            ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+            floatingActionButton: Global.bottomPlayBar
+        )
+    );
+  }
+
+  Future<void> _onRefresh() async {
+    await Future.delayed(const Duration(milliseconds:2000),(){
+      _loadData(true);
+    });
+  }
+
+  void _loadData(init) async {
+    if(init) {
+      _page = 0;
+      _hasMore = true;
     }
+    if(_hasMore) {
+      List<MusicTagInfo> res = await QQUtil.showPlaylist(_page);
+      setState(() {
+        if(res.length < 30) {
+          _hasMore = false;
+        }
+        if(_page == 0) {
+          _result = res;
+          _count = res.length;
+        } else {
+          _result.addAll(res);
+          _count += res.length;
+        }
+        _page++;
+      });
+    }
+    print('获取数据，页数：${_page},总数：${_count}');
+  }
+
+  Widget _buildLoading() {
+    return const Center(
+      child: Text('加载中！！！'),
+    );
+  }
+  //构建数据列表UI
+  Widget _buildData() {
+
+    return RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: GridView.builder(
+            controller: _scrollController,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3, childAspectRatio: 11 / 18),
+            primary: false,
+            padding: const EdgeInsets.all(1),
+            itemCount: _count,
+            itemBuilder: (BuildContext context, int index) {
+              return Container(
+                color: Colors.white,
+                child: TextButton(
+                  child: Column(
+                    children: [
+                      AspectRatio(
+                          aspectRatio: 7/9,
+                          child: Container(
+                            clipBehavior: Clip.hardEdge,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            //child: Image.asset('assets/lady.jpeg'),
+                            child: Image.network(_result[index].getCoverImgUrl,fit: BoxFit.cover,),
+                          )
+                      ),
+                      Text(_result[index].getTitle,
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    ],
+                  ),
+                  onPressed: () {
+                    if(_result[index] != null) {
+                      Navigator.of(context).pushNamed('/playList', arguments: {
+                        'musicTagInfo': _result[index]
+                      });
+                    }
+                  },
+                ),
+              );
+            })
+    );
 
   }
 }

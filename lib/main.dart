@@ -29,12 +29,12 @@ class _MyAppState extends State<MyApp> {
             initialRoute: '/',
             onGenerateRoute: onGenerateRoute,
             debugShowCheckedModeBanner: false,
-            localizationsDelegates: [
+            localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate
             ],
-            supportedLocales: [
+            supportedLocales: const [
               Locale('zh', 'CH'),
               Locale('en', 'US')
             ],
