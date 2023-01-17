@@ -1,26 +1,29 @@
-import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter_music_player/common/state/bottom_play_bar_state.dart';
 import 'package:flutter_music_player/model/music_info.dart';
 import 'package:flutter_music_player/model/music_tag_info.dart';
 import 'package:flutter_music_player/api/provider/qq.dart';
 import 'package:provider/provider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_music_player/common/state/music_play_state.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../common/Global.dart';
 
 class PlayList extends StatefulWidget {
 
-  final arguments;
+  late MusicTagInfo musicTagInfo;
 
-  PlayList({Key? key,this.arguments}) : super(key: key);
+  PlayList(Object? musicTagInfo, {Key? key}) : super(key:key) {
+    this.musicTagInfo =  musicTagInfo as MusicTagInfo;
+  }
 
   @override
-  State<PlayList> createState() => _PlayListState(arguments);
+  State<PlayList> createState() => _PlayListState(musicTagInfo);
 }
 
 class _PlayListState extends State<PlayList> {
-
-  final arguments;
 
   late MusicTagInfo musicTagInfo;
 
@@ -28,19 +31,22 @@ class _PlayListState extends State<PlayList> {
 
   MusicTagInfo? tagInfo;
 
+  late BottomPlayBarState bottomPlayBarState;
+
   late MusicPlayState musicPlayState;
 
-  _PlayListState(this.arguments);
+  _PlayListState(this.musicTagInfo);
 
-  MusicTagInfo covertModel() {
+ /* MusicTagInfo covertModel() {
     return arguments['musicTagInfo'];
-  }
+  }*/
 
   void printResult(values) {
     setState(() {
       tracks = values['tracks'];
       tagInfo = values['info'];
     });
+    log(values['tracks'].toString());
   }
 
 
@@ -58,6 +64,9 @@ class _PlayListState extends State<PlayList> {
         ),
       );
     }
+
+    bottomPlayBarState = BottomPlayBarState.of(context);
+
     musicPlayState = Provider.of(context);
 
     return Scaffold(
@@ -118,19 +127,80 @@ class _PlayListState extends State<PlayList> {
                 );
               } else {
                 return ListTile(
-                    leading: Text((index).toString()),
-                    title: Text(tracks[index-1].getTitle, style:
-                      TextStyle(
-                        color: tracks[index-1].getDisabled ? Colors.red : Colors.black
-                      ),
-                    ),
-                    subtitle: Text(tracks[index-1].getArtist),
+                    leading: tracks[index-1].getImgUrl.isEmpty ? Image.asset('assets/lady.jpeg',fit: BoxFit.fill,width: screenWidth*0.12, height: screenHeight*0.05,) : Image.network(tracks[index-1].getImgUrl,fit: BoxFit.fill, width: screenWidth*0.12, height: screenHeight*0.05,),
+                    textColor: tracks[index-1].getDisabled ? Colors.black12 : Colors.black,
+                    title: Text(tracks[index-1].getTitle),
+                    subtitle: Text('${tracks[index-1].getArtist} - ${tracks[index-1].getAlbum}',maxLines: 1, overflow: TextOverflow.ellipsis,),
                     trailing: IconButton(
                         onPressed: (){
-                          musicPlayState.playNewMusic(tracks[index-1]);
+
+                          bottomPlayBarState.hideBottomPlayBar();
+
+                          showModalBottomSheet(context: context, builder: (BuildContext context) {
+                            return Container(
+                              height: screenHeight * 0.4,
+                              color: Colors.white,
+                              child: Column(
+                                children: [
+                                  ListTile(
+                                    contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                    title: Text(tracks[index-1].getTitle),
+                                  ),
+                                  Divider(color: Colors.black,),
+                                  Expanded(
+                                      child: Scrollbar(
+                                        child: ListView(
+                                          padding: EdgeInsets.zero,
+                                          children: [
+                                            ListTile(
+                                              leading: FaIcon(FontAwesomeIcons.circlePlay),
+                                              contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                              title: Text('下一首播放'),
+                                              onTap: () {
+                                                // 点击加入下一首播放列表
+                                              },
+                                            ),
+                                            ListTile(
+                                              leading: FaIcon(FontAwesomeIcons.squarePlus),
+                                              contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                              title: Text('收藏到歌单'),
+                                            ),
+                                            ListTile(
+                                              leading: FaIcon(FontAwesomeIcons.user),
+                                              contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                              title: Text('歌手：${tracks[index-1].getArtist}'),
+                                            ),
+                                            ListTile(
+                                              leading: FaIcon(FontAwesomeIcons.recordVinyl),
+                                              contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                              title: Text('专辑：${tracks[index-1].getAlbum}'),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).then((value) => bottomPlayBarState.showBottomPlayBar());
+
                         },
-                        icon: Icon(Icons.not_started_outlined)
-                    )
+                        icon: FaIcon(FontAwesomeIcons.ellipsisVertical)
+                    ),
+                    onTap: () {
+                      if(tracks[index-1].getDisabled) {
+                        Fluttertoast.showToast(
+                          msg: "平台版权原因无法播放，请尝试其他平台",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.black87,
+                          textColor: Colors.white70,
+                        );
+                      } else {
+                        musicPlayState.playNewMusic(tracks[index-1]);
+                      }
+                    },
                 );
               }
             }
@@ -146,10 +216,20 @@ class _PlayListState extends State<PlayList> {
   @override
   void initState() {
     super.initState();
-    musicTagInfo = covertModel();
+    //musicTagInfo = covertModel();
     QQUtil.getPlaylist(musicTagInfo.getId).then((value){
       printResult(value);
     });
   }
 
 }
+
+
+/*
+*
+*
+*
+* {_id: qqtrack_000WjZVc1HXBrs, _title: 故事随时间慷慨, _artist: 毛正安, _artistId: qqartist_000oNmuT1SQUPt, _album: 故事随时间慷慨, _albumId: qqalbum_003PIvrw2oFVkt,
+* _imgUrl: http://imgcache.qq.com/music/photo/mid_album_300/k/t/003PIvrw2oFVkt.jpg,
+* _source: qq, _sourceUrl: http://y.qq.com/#type=song&mid=000WjZVc1HXBrs&tpl=yqq_song_detail, _url: qqtrack_000WjZVc1HXBrs, _disabled: false}
+* */

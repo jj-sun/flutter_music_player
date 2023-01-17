@@ -1,5 +1,4 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_music_player/api/provider/qq.dart';
 import 'package:flutter_music_player/model/music_info.dart';
@@ -123,8 +122,9 @@ class MusicPlayState extends ChangeNotifier {
     });
 
     _audioPlayer.onPlayerComplete.listen((event) {
-      print('监听完成');
+
       musicControlNext();
+      notifyListeners();
     });
 
 
@@ -140,17 +140,17 @@ class MusicPlayState extends ChangeNotifier {
     if(_currentPlayId == currentMusicInfo?.getId) {
       _resume();
     }
-    _currentPlayId = currentMusicInfo?.getId;
-    QQUtil.bootstrapTrack(_currentPlayId).then((audioUrl) {
-      //_audioPlayer.stop();
-      if(audioUrl.isNotEmpty) {
-        _audioPlayer.play(UrlSource(audioUrl));
-      } else {
-        musicControlNext();
-      }
-    });
-
-
+    if(currentMusicInfo != null) {
+      _currentPlayId = currentMusicInfo!.getId;
+      QQUtil.bootstrapTrack(_currentPlayId).then((audioUrl) {
+        //_audioPlayer.stop();
+        if(audioUrl.isNotEmpty) {
+          _audioPlayer.play(UrlSource(audioUrl));
+        } else {
+          musicControlNext();
+        }
+      });
+    }
   }
 
   void _resume() async {
@@ -214,6 +214,7 @@ class MusicPlayState extends ChangeNotifier {
 
   //播放下一首
   void musicControlNext(){
+    print('监听完成');
     musicNextIndex();
     _play();
   }

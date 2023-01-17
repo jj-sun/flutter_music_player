@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_music_player/model/music_tag_info.dart';
+import 'package:go_router/go_router.dart';
 import '../common/Global.dart';
 import 'package:flutter_music_player/api/provider/qq.dart';
 
@@ -14,6 +15,8 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
 
   final ScrollController _scrollController =  ScrollController();
+
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
   bool _hasMore = true;
 
@@ -79,7 +82,10 @@ class _HomePageState extends State<HomePage>
                 IconButton(
                     icon: const Icon(Icons.menu_outlined),
                     color: Colors.black,
-                    onPressed: () {})
+                    onPressed: () {
+                      scaffoldKey.currentState!.openEndDrawer();
+                    }
+                )
               ],
               bottom: const TabBar(
                 unselectedLabelColor: Colors.black54,
@@ -103,8 +109,58 @@ class _HomePageState extends State<HomePage>
                 Text('网易云')
               ],
             ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-            floatingActionButton: Global.bottomPlayBar
+            key: scaffoldKey,
+            endDrawer: Drawer(
+              width: screenWidth * 0.7,
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  DrawerHeader(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/green.png')
+                      )
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'MUSIC',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                          ),
+                        ),
+                        Text(
+                          '彪悍的人生是不需要解释的',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    )
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.account_circle),
+                    title: Text('个人信息'),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.settings),
+                    title: Text('设置'),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.info_outline),
+                    title: Text('关于'),
+                    trailing: Icon(Icons.navigate_next),
+                  ),
+                ],
+              ),
+            ),
+           bottomSheet: Global.bottomPlayBar,
+           /* floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+            floatingActionButton: Global.bottomPlayBar,*/
+
         )
     );
   }
@@ -184,11 +240,10 @@ class _HomePageState extends State<HomePage>
                     ],
                   ),
                   onPressed: () {
-                    if(_result[index] != null) {
-                      Navigator.of(context).pushNamed('/playList', arguments: {
-                        'musicTagInfo': _result[index]
-                      });
-                    }
+                    context.go('/playList', extra: _result[index] );
+                    /*Navigator.of(context).pushNamed('/playList', arguments: {
+                      'musicTagInfo': _result[index]
+                    });*/
                   },
                 ),
               );

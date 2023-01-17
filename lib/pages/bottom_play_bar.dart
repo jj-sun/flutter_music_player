@@ -1,11 +1,13 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_music_player/common/state/bottom_play_bar_state.dart';
 import 'package:flutter_music_player/common/state/music_play_state.dart';
 import 'package:flutter_music_player/model/music_info.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 class BottomPlayBar extends StatefulWidget {
+
   const BottomPlayBar({Key? key}) : super(key: key);
 
   @override
@@ -13,11 +15,12 @@ class BottomPlayBar extends StatefulWidget {
 }
 
 class _BottomPlayBarState extends State<BottomPlayBar> {
+
+  late BottomPlayBarState bottomPlayBarState = BottomPlayBarState.of(context);
+
   late MusicPlayState musicPlayState = MusicPlayState.of(context);
 
   var _icons = [FontAwesomeIcons.circlePlay, FontAwesomeIcons.circlePause];
-
-  bool visible = true;
 
   @override
   void initState() {
@@ -25,21 +28,25 @@ class _BottomPlayBarState extends State<BottomPlayBar> {
     //musicPlayState =
   }
 
-  Object _images(obj) {
+
+
+  /*Object _images(obj) {
     return obj == null
         ? AssetImage('')
         : NetworkImage(musicPlayState.currentMusicInfo?.getImgUrl);
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth  = MediaQuery.of(context).size.width;
     return Visibility(
-        visible: visible,
+        visible: bottomPlayBarState.visible,
+        maintainState: true,
         child: Container(
-            padding: EdgeInsets.all(4),
-            height: MediaQuery.of(context).size.height * 0.07,
+            padding: EdgeInsets.zero,
+            color: Colors.black12,
+            height: MediaQuery.of(context).size.height * 0.05,
             child: Selector<MusicPlayState, PlayerState>(
               shouldRebuild: (pre, next) {
                 return pre != next;
@@ -49,19 +56,16 @@ class _BottomPlayBarState extends State<BottomPlayBar> {
               },
               builder: (context, audioState, _) {
                 return AppBar(
-                  backgroundColor: Colors.blueGrey,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  //shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),AssetImage('assets/lady.jpeg')
                   leading: InkWell(
-                    child: CircleAvatar(
-                      radius: 20,
-                      backgroundImage: AssetImage('assets/lady.jpeg'),
-                    ),
+                    child: Image.asset('assets/lady.jpeg',fit: BoxFit.fill,),
                   ),
                   title: TextButton(
                     child: Text(
                       '${musicPlayState.currentMusicInfo?.getTitle} - ${musicPlayState.currentMusicInfo?.getArtist}',
-                      style: TextStyle(fontSize: 14, color: Colors.white),
+                      style: const TextStyle(fontSize: 14, color: Colors.black, overflow: TextOverflow.ellipsis),
                     ),
                     onPressed: () {},
                   ),
@@ -86,12 +90,13 @@ class _BottomPlayBarState extends State<BottomPlayBar> {
                             musicPlayState.currentPlayList;
                         print(musicInfoList.length);
                         if(musicInfoList.isNotEmpty) {
-                          setState(() {
+                          /*setState(() {
                             this.visible = false;
-                          });
-                          Scaffold.of(context).showBottomSheet((context) {
+                          });*/
+                          bottomPlayBarState.hideBottomPlayBar();
+                          showModalBottomSheet(context: context, builder: (BuildContext context) {
                             return Container(
-                              height: screenHeight * 0.8,
+                              height: screenHeight * 0.75,
                               color: Colors.white,
                               child: Column(
                                 children: [
@@ -108,47 +113,35 @@ class _BottomPlayBarState extends State<BottomPlayBar> {
                                             shrinkWrap: true,
                                             itemCount: musicInfoList.length,
                                             itemBuilder: (BuildContext context, int index) {
+
                                               return ListTile(
+                                                  textColor: musicPlayState.currentMusicInfo?.getId == musicInfoList[index].getId ? Colors.red : musicInfoList[index].getDisabled ? Colors.black12 : Colors.black,
+                                                  leading: Text((index+1).toString()),
                                                   title: Text(
                                                     musicInfoList[index].getTitle,
+                                                    overflow: TextOverflow.ellipsis
                                                   ),
-                                                  //subtitle: Text(musicInfoList[index].getArtist),
+                                                  subtitle: Text(musicInfoList[index].getArtist,overflow: TextOverflow.ellipsis),
                                                   onTap: () {
-                                                    musicPlayState.playMusicIndex(index);
+                                                    if(!musicInfoList[index].getDisabled) {
+                                                      musicPlayState.playMusicIndex(index);
+                                                    }
                                                   },
                                                   trailing: IconButton(
                                                       onPressed: () {
                                                         musicPlayState.remove(index);
                                                       },
-                                                      icon: const Icon(Icons.close)));
+                                                      icon: const Icon(Icons.close)
+                                                  )
+                                              );
                                             }
                                         ),
                                       )
-                                  ),
-                                  Divider(),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      TextButton(
-                                          onPressed: (){
-                                            Navigator.pop(context);
-                                            setState(() {
-                                              this.visible = true;
-                                            });
-                                          },
-                                          child: Text('关闭',
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              color: Colors.black
-                                            ),)
-                                      )
-                                    ],
-                                  ),
-                                  SizedBox(height: 10,)
+                                  )
                                 ],
                               ),
                             );
-                          });
+                          }).then((value) => bottomPlayBarState.showBottomPlayBar());
                         }
                       },
                     ),

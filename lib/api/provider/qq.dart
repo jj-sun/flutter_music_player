@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_music_player/api/request_util.dart';
 import 'package:flutter_music_player/model/music_info.dart';
 import 'package:flutter_music_player/model/music_tag_info.dart';
+import 'dart:developer';
 
 class QQUtil {
   static String htmlDecode(s) {
@@ -191,7 +192,7 @@ class QQUtil {
     List<dynamic> songlist = jsonData['cdlist'][0]['songlist'];
     List<MusicInfo> tracks = songlist.map((item) => qqConvertSong(item)).toList();
 
-    print(tracks);
+    //log(tracks.toString());
 
     return {
         'tracks': tracks,

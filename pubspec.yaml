@@ -42,6 +42,8 @@ dependencies:
   string_to_hex: ^0.2.2
   font_awesome_flutter: ^10.2.1
   provider: ^6.0.3
+  go_router: ^6.0.1
+  fluttertoast: ^8.1.2
 
 dev_dependencies:
   flutter_test:
@@ -74,6 +76,7 @@ flutter:
     - assets/music_record.jpeg
     - assets/love.mp3
     - assets/toutou.m4a
+    - assets/green.png
     - audio/
 
   # An image asset can refer to one or more resolution-specific "variants", see
