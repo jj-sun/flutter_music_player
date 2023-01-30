@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage>
               toolbarTextStyle: const TextStyle(color: Colors.black),
               backgroundColor: Colors.white70,
               leading: const Center(
-                child: Text('听海'),
+                child: Text('辞盈'),
               ),
               //centerTitle: true,
               title: const TextField(
@@ -125,14 +125,14 @@ class _HomePageState extends State<HomePage>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'MUSIC',
+                          '辞盈',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 24,
                           ),
                         ),
                         Text(
-                          '彪悍的人生是不需要解释的',
+                          '山不让尘，川不辞盈',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 12,
@@ -143,11 +143,11 @@ class _HomePageState extends State<HomePage>
                   ),
                   ListTile(
                     leading: Icon(Icons.account_circle),
-                    title: Text('个人信息'),
+                    title: Text('备份'),
                   ),
                   ListTile(
                     leading: Icon(Icons.settings),
-                    title: Text('设置'),
+                    title: Text('恢复'),
                   ),
                   ListTile(
                     leading: Icon(Icons.info_outline),

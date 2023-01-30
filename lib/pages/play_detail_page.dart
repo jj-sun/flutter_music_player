@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 import '../model/music_info.dart';
+import 'bottom_play_list.dart';
 
 class PlayDetailPage extends StatefulWidget {
 
@@ -25,9 +26,9 @@ class _PlayDetailPageState extends State<PlayDetailPage> {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
 
-    var _icons = [Icons.play_circle_outline, Icons.pause_circle_outline];
+    var icons = [Icons.play_circle_outline, Icons.pause_circle_outline];
 
-    var _modeIcons = [Icons.repeat, Icons.shuffle, Icons.repeat_one];
+    var modeIcons = [Icons.repeat, Icons.shuffle, Icons.repeat_one];
 
     return Scaffold(
       appBar: AppBar(
@@ -104,7 +105,7 @@ class _PlayDetailPageState extends State<PlayDetailPage> {
                     height: screenHeight * 0.5,
                     width: screenWidth,
                     padding: EdgeInsets.all(10),
-                    child: Image.network(musicPlayState.currentMusicInfo.getImgUrl),
+                    child: musicPlayState.currentMusicInfo.getImgUrl.isEmpty? Image.asset('assets/lady.jpeg') : Image.network(musicPlayState.currentMusicInfo.getImgUrl),
                     color: Colors.black12,
                   ),
                 ),
@@ -143,21 +144,21 @@ class _PlayDetailPageState extends State<PlayDetailPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     verticalDirection: VerticalDirection.up,
                     children: [
-                      IconButton(icon: Icon(_modeIcons[musicPlayState.musicModeIndex]),
+                      IconButton(icon: Icon(modeIcons[musicPlayState.musicModeIndex]),
                           onPressed: () {
                             // shuffle 随机  repeat-one
                             musicPlayState.changeMusicMode();
                           }
                       ),
-                      IconButton(icon: Icon(Icons.skip_previous),
+                      IconButton(icon: const Icon(Icons.skip_previous),
                           onPressed: () {
                             musicPlayState.musicControlPrevious();
                           }
                       ),
                       IconButton(
                           icon: musicPlayState.playerState == PlayerState.playing
-                              ? Icon(_icons[1])
-                              : Icon(_icons[0]),
+                              ? Icon(icons[1])
+                              : Icon(icons[0]),
                           iconSize: 50,
                           onPressed: () {
                             if (musicPlayState.playerState == PlayerState.paused) {
@@ -169,16 +170,16 @@ class _PlayDetailPageState extends State<PlayDetailPage> {
                             }
                           }
                       ),
-                      IconButton(icon: Icon(Icons.skip_next),
+                      IconButton(icon: const Icon(Icons.skip_next),
                           onPressed: () {
                             musicPlayState.musicControlNext();
                           }
                       ),
-                      IconButton(icon: Icon(Icons.queue_music),
+                      IconButton(icon: const Icon(Icons.queue_music),
                           onPressed: () {
                             if(musicPlayState.currentPlayList.isNotEmpty) {
                               showModalBottomSheet(context: context, builder: (BuildContext context) {
-                                return Container(
+                                /*return Container(
                                   height: screenHeight * 0.75,
                                   color: Colors.white,
                                   child: Column(
@@ -236,7 +237,9 @@ class _PlayDetailPageState extends State<PlayDetailPage> {
                                       )
                                     ],
                                   ),
-                                );
+                                );*/
+
+                                return const BottomPlayList();
                               });
                             }
 

@@ -277,7 +277,7 @@ class MusicPlayState extends ChangeNotifier {
     } else {
       _musicModeEnum = MusicModeEnum.repeat;
     }
-
+    notifyListeners();
   }
 
   static MusicPlayState of(BuildContext context) {

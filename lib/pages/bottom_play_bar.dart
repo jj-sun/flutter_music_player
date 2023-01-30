@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_music_player/common/state/bottom_play_bar_state.dart';
 import 'package:flutter_music_player/common/state/music_play_state.dart';
 import 'package:flutter_music_player/model/music_info.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_music_player/pages/bottom_play_list.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -25,7 +25,7 @@ class _BottomPlayBarState extends State<BottomPlayBar> {
   late MusicPlayState musicPlayState = MusicPlayState.of(context);
 
 
-  var _icons = [Icons.play_circle_outline, Icons.pause_circle_outline];
+  final _icons = [Icons.play_circle_outline, Icons.pause_circle_outline];
 
   @override
   void initState() {
@@ -39,8 +39,8 @@ class _BottomPlayBarState extends State<BottomPlayBar> {
     double screenWidth  = MediaQuery.of(context).size.width;
 
 
-    Offset _initSwipeOffset = Offset(0, 0);
-    Offset _finalSwipeOffset = Offset(0, 0);
+    Offset initSwipeOffset = const Offset(0, 0);
+    Offset finalSwipeOffset = const Offset(0, 0);
 
     return Visibility(
         visible: bottomPlayBarState.visible,
@@ -94,7 +94,7 @@ class _BottomPlayBarState extends State<BottomPlayBar> {
                           if(musicInfoList.isNotEmpty) {
                             bottomPlayBarState.hideBottomPlayBar();
                             showModalBottomSheet(context: context, builder: (BuildContext context) {
-                              return Container(
+                              /*return Container(
                                 height: screenHeight * 0.75,
                                 color: Colors.white,
                                 child: Column(
@@ -148,7 +148,8 @@ class _BottomPlayBarState extends State<BottomPlayBar> {
                                     )
                                   ],
                                 ),
-                              );
+                              );*/
+                              return const BottomPlayList();
                             }).then((value) => bottomPlayBarState.showBottomPlayBar());
                           }
                         },
@@ -159,15 +160,15 @@ class _BottomPlayBarState extends State<BottomPlayBar> {
                     context.go('/playDetail');
                   },
                   onHorizontalDragStart: (details) {
-                    _initSwipeOffset = details.globalPosition;
+                    initSwipeOffset = details.globalPosition;
                   },
                   onHorizontalDragUpdate: (details) {
-                    _finalSwipeOffset = details.globalPosition;
+                    finalSwipeOffset = details.globalPosition;
                   },
                   onHorizontalDragEnd: (details) {
-                    log('${_initSwipeOffset.dx} - ${_finalSwipeOffset.dx}');
-                    if(_initSwipeOffset != null) {
-                      final offsetDifference = _initSwipeOffset.dx - _finalSwipeOffset.dx;
+                    log('${initSwipeOffset.dx} - ${finalSwipeOffset.dx}');
+                    if(initSwipeOffset != null) {
+                      final offsetDifference = initSwipeOffset.dx - finalSwipeOffset.dx;
                       if(offsetDifference > 0) {
                         // 左滑 下一首
                         musicPlayState.musicControlNext();
