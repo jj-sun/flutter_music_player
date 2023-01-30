@@ -1,4 +1,5 @@
 import 'package:flutter_music_player/pages/home_page.dart';
+import 'package:flutter_music_player/pages/play_detail_page.dart';
 import 'package:flutter_music_player/pages/play_list.dart';
 import 'package:go_router/go_router.dart';
 
@@ -14,6 +15,11 @@ var goRouter = GoRouter(
             name: 'playList',
             path: 'playList',
             builder: (context, state) => PlayList(state.extra),
+          ),
+          GoRoute(
+            name: 'playDetail',
+            path: 'playDetail',
+            builder: (context, state) => PlayDetailPage(),
           )
         ]
       )

@@ -153,7 +153,7 @@ class _PlayListState extends State<PlayList> {
                                           padding: EdgeInsets.zero,
                                           children: [
                                             ListTile(
-                                              leading: FaIcon(FontAwesomeIcons.circlePlay),
+                                              leading: Icon(Icons.play_circle),
                                               contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                               title: Text('下一首播放'),
                                               onTap: () {
@@ -161,17 +161,17 @@ class _PlayListState extends State<PlayList> {
                                               },
                                             ),
                                             ListTile(
-                                              leading: FaIcon(FontAwesomeIcons.squarePlus),
+                                              leading: Icon(Icons.playlist_add),
                                               contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                               title: Text('收藏到歌单'),
                                             ),
                                             ListTile(
-                                              leading: FaIcon(FontAwesomeIcons.user),
+                                              leading: Icon(Icons.person),
                                               contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                               title: Text('歌手：${tracks[index-1].getArtist}'),
                                             ),
                                             ListTile(
-                                              leading: FaIcon(FontAwesomeIcons.recordVinyl),
+                                              leading: Icon(Icons.album),
                                               contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                               title: Text('专辑：${tracks[index-1].getAlbum}'),
                                             ),
@@ -185,7 +185,7 @@ class _PlayListState extends State<PlayList> {
                           }).then((value) => bottomPlayBarState.showBottomPlayBar());
 
                         },
-                        icon: FaIcon(FontAwesomeIcons.ellipsisVertical)
+                        icon: Icon(Icons.more_vert)
                     ),
                     onTap: () {
                       if(tracks[index-1].getDisabled) {
@@ -206,8 +206,9 @@ class _PlayListState extends State<PlayList> {
             }
         ),
       ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: Global.bottomPlayBar,
+        // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        // floatingActionButton: Global.bottomPlayBar,
+      bottomSheet: Global.bottomPlayBar,
     );
   }
   

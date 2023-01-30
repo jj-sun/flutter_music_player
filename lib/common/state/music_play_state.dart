@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_music_player/api/provider/qq.dart';
+import 'package:flutter_music_player/common/enums/music_mode_enum.dart';
 import 'package:flutter_music_player/model/music_info.dart';
 import 'package:provider/provider.dart';
 
@@ -11,14 +14,23 @@ class MusicPlayState extends ChangeNotifier {
 
   List<MusicInfo> _currentPlayList = <MusicInfo>[];
 
+  MusicModeEnum _musicModeEnum = MusicModeEnum.repeat;
+
 
   List<MusicInfo> get currentPlayList => _currentPlayList;
 
-  MusicInfo? get currentMusicInfo{
+  int get currentIndex => _currentIndex;
+
+  String get currentPlayId => _currentPlayId;
+
+  int get musicModeIndex => _musicModeEnum.index;
+
+  MusicInfo get currentMusicInfo{
     if(_currentPlayList.isNotEmpty) {
       return _currentPlayList[_currentIndex];
     } else {
-      return null;
+      //此处需要初始化一首歌
+      return MusicInfo('qqtrack_003YC3p31HyR96', '最美的期待', '周笔畅', 'qqartist_004HlS192u9J5g', '最美的期待', 'qqalbum_001Qn04n29RAmP', 'http://imgcache.qq.com/music/photo/mid_album_300/m/P/001Qn04n29RAmP.jpg', 'qq', 'http://y.qq.com/#type=song&mid=003YC3p31HyR96&tpl=yqq_song_detail', 'qqtrack_003YC3p31HyR96', false);
     }
   }
 
@@ -31,11 +43,11 @@ class MusicPlayState extends ChangeNotifier {
   void playAll(List<MusicInfo> list) {
     //自动移除会员歌曲
     List<MusicInfo> musicList = [];
-    list.forEach((element) {
+    for (var element in list) {
       if(element.getDisabled != true) {
         musicList.add(element);
       }
-    });
+    }
 
     if(musicList.isNotEmpty) {
       updatePlayList(list, 0);
@@ -92,6 +104,10 @@ class MusicPlayState extends ChangeNotifier {
 
   get playerState => _playerState;
 
+  Duration get duration => _duration;
+
+  Duration get position => _position;
+
   MusicPlayState() {
 
     _setPlaybackRate(1);
@@ -101,29 +117,42 @@ class MusicPlayState extends ChangeNotifier {
   }
 
   _setListener() {
-    print('监听!');
     // 播放完成
     _audioPlayer.onPlayerStateChanged.listen((PlayerState playerState) {
-      print('监听${playerState}');
+      print('状态监听：${playerState}');
       _playerState = playerState;
       notifyListeners();
+
     });
     //监听时长
     _audioPlayer.onDurationChanged.listen((d) {
+      //print('时长监听：${d}');
       _duration = d;
       notifyListeners();
     });
 
     //监听进度
     _audioPlayer.onPositionChanged.listen((p) {
+      //print('进度监听：${p}');
       _position = p;
 
       notifyListeners();
     });
 
     _audioPlayer.onPlayerComplete.listen((event) {
-
-      musicControlNext();
+      print('播放完成监听');
+      if(_musicModeEnum.index == 0) {
+        //继续播放当前音乐
+        print('顺序播放');
+        musicControlNext();
+      } else if(_musicModeEnum.index == 1) {
+        //随机播放
+        print('随机播放');
+        musicRandom();
+      } else {
+        print('单曲播放');
+        _play();
+      }
       notifyListeners();
     });
 
@@ -137,20 +166,21 @@ class MusicPlayState extends ChangeNotifier {
   void _play() async {
     print("当前ID：" + _currentPlayId);
     //print("当前音乐" + currentMusicInfo.getId);
-    if(_currentPlayId == currentMusicInfo?.getId) {
+    if(_currentPlayId == currentMusicInfo.getId) {
       _resume();
     }
     if(currentMusicInfo != null) {
-      _currentPlayId = currentMusicInfo!.getId;
+      _currentPlayId = currentMusicInfo.getId;
       QQUtil.bootstrapTrack(_currentPlayId).then((audioUrl) {
-        //_audioPlayer.stop();
         if(audioUrl.isNotEmpty) {
           _audioPlayer.play(UrlSource(audioUrl));
         } else {
+          print('如果播放源不存在，自动下一个');
           musicControlNext();
         }
       });
     }
+    notifyListeners();
   }
 
   void _resume() async {
@@ -183,13 +213,13 @@ class MusicPlayState extends ChangeNotifier {
 
   /// 更新播放进度
   Future<void> musicSeek(double value){
-    final position = value * _duration.inMilliseconds;
+    //final position = value * _duration.inMilliseconds;
 
-    return _seek(position);
+    return _seek(value);
   }
 
   Future<void> _seek(double position) {
-    return _audioPlayer.seek(Duration(milliseconds: position.round()));
+    return _audioPlayer.seek(Duration(seconds: position.round()));
   }
 
 
@@ -212,9 +242,8 @@ class MusicPlayState extends ChangeNotifier {
     _currentIndex = index;
   }
 
-  //播放下一首
+  /// 播放下一首
   void musicControlNext(){
-    print('监听完成');
     musicNextIndex();
     _play();
   }
@@ -223,6 +252,32 @@ class MusicPlayState extends ChangeNotifier {
     int index = _currentIndex + 1;
     index = index == _currentPlayList.length ? 0 : index;
     _currentIndex = index;
+  }
+
+  /// 随机播放
+  void musicRandom() {
+    int index = _currentPlayList.isEmpty ? 0 : Random().nextInt(_currentPlayList.length);
+    _currentIndex = index;
+
+    _play();
+  }
+
+  /// 单曲循环
+  void musicOnePlay() {
+
+  }
+
+
+  /// 更改音乐播放状态，0顺序播放，1随机播放，2单曲循环
+  void changeMusicMode() {
+    if(_musicModeEnum.index == 0) {
+      _musicModeEnum = MusicModeEnum.shuffle;
+    } else if(_musicModeEnum.index == 1) {
+      _musicModeEnum = MusicModeEnum.repeatOne;
+    } else {
+      _musicModeEnum = MusicModeEnum.repeat;
+    }
+
   }
 
   static MusicPlayState of(BuildContext context) {

@@ -51,21 +51,6 @@ class QQUtil {
   }
 
   static MusicInfo qqConvertSong(song) {
-    //print(song);
-    // var d = <String, dynamic>{
-    //   'id': 'qqtrack_${song['songmid']}',
-    //   'title': htmlDecode(song['songname']),
-    //   'artist': htmlDecode(song['singer'][0]['name']),
-    //   'artist_id': 'qqartist_${song['singer'][0]['mid']}',
-    //   'album': htmlDecode(song['albumname']),
-    //   'album_id': 'qqalbum_${song['albummid']}',
-    //   'img_url': qqGetImageUrl(song['albummid'], 'album'),
-    //   'source': 'qq',
-    //   'source_url':
-    //       'http://y.qq.com/#type=song&mid=${song['songmid']}&tpl=yqq_song_detail',
-    //   'url': 'qqtrack_${song['songmid']}',
-    //   'disabled': !qqIsPlayable(song),
-    // };
 
     var d = MusicInfo('qqtrack_${song['songmid']}',
         htmlDecode(song['songname']),
@@ -141,7 +126,7 @@ class QQUtil {
     String? text = data?.substring('jsonCallback('.length, data.length-1);
     const JsonDecoder jsonDecoder = JsonDecoder();
     var jsonData = jsonDecoder.convert(text!);
-    var tracks = jsonData['data']['song']['list'].map((item) => qqConvertSong(item));
+    List<MusicInfo> tracks = jsonData['data']['song']['list'].map((item) => qqConvertSong(item));
     return {
       'result': tracks,
       'total': jsonData['data']['song']['totalnum']
@@ -216,15 +201,15 @@ class QQUtil {
         'User-Agent': 'Mozilla/5.0 (Linux; U; Android 8.1.0; zh-cn; BLA-AL00 Build/HUAWEIBLA-AL00) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 MQQBrowser/8.9 Mobile Safari/537.36',
       },
     );
-    print('获取的数据${data}');
+    //print('获取的数据${data}');
     const JsonDecoder jsonDecoder = JsonDecoder();
     var jsonData = jsonDecoder.convert(data!);
-    print('获取数据${jsonData['req_0']['data']['midurlinfo'][0]['purl']}');
+    //print('获取数据${jsonData['req_0']['data']['midurlinfo'][0]['purl']}');
     if(jsonData['req_0']['data']['midurlinfo'][0]['purl'] == '') {
       return '';
     }
     var url = jsonData['req_0']['data']['sip'][0] + jsonData['req_0']['data']['midurlinfo'][0]['purl'];
-    print('播放源:' + url);
+    //print('播放源:' + url);
     return url;
   }
 
