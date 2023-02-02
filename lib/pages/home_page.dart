@@ -21,7 +21,6 @@ class _HomePageState extends State<HomePage>
   bool _hasMore = true;
 
   List<MusicTagInfo> _result = [];
-  int _count = 0;
   int _page = 0;
 
   @override
@@ -29,7 +28,7 @@ class _HomePageState extends State<HomePage>
     super.initState();
 
     _scrollController.addListener(() {
-      print(_scrollController.offset);
+      //print(_scrollController.offset);
       if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
         _loadData(false);
       }
@@ -158,8 +157,6 @@ class _HomePageState extends State<HomePage>
               ),
             ),
            bottomSheet: Global.bottomPlayBar,
-           /* floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-            floatingActionButton: Global.bottomPlayBar,*/
 
         )
     );
@@ -184,15 +181,14 @@ class _HomePageState extends State<HomePage>
         }
         if(_page == 0) {
           _result = res;
-          _count = res.length;
+          _page = res.length;
         } else {
           _result.addAll(res);
-          _count += res.length;
+          _page += res.length;
         }
-        _page++;
       });
     }
-    print('获取数据，页数：${_page},总数：${_count}');
+    print('获取数据，偏移量：${_page},总数：${_result.length}');
   }
 
   Widget _buildLoading() {
@@ -211,7 +207,7 @@ class _HomePageState extends State<HomePage>
                 crossAxisCount: 3, childAspectRatio: 11 / 18),
             primary: false,
             padding: const EdgeInsets.all(1),
-            itemCount: _count,
+            itemCount: _result.length,
             itemBuilder: (BuildContext context, int index) {
               return Container(
                 color: Colors.white,

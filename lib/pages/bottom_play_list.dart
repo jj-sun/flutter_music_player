@@ -18,6 +18,31 @@ class _BottomPlayListState extends State<BottomPlayList> {
 
   late MusicPlayState musicPlayState = MusicPlayState.of(context);
 
+  final ScrollController _scrollController = ScrollController();
+
+
+  @override
+  void initState() {
+
+    super.initState();
+
+    _scrollController.addListener(() {
+      print('dsss: ${_scrollController.offset}');
+      print('wwww: ${_scrollController.position}');
+      /*if(_scrollController.offset > 5) {
+        _scrollController.jumpTo(20);
+      }*/
+    });
+  }
+
+
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -55,6 +80,7 @@ class _BottomPlayListState extends State<BottomPlayList> {
           const Divider(),
           Expanded(
               child: Scrollbar(
+                controller: _scrollController,
                 child: Selector<MusicPlayState, String>(
                   selector: (context, state) {
                     return state.currentPlayId;
@@ -63,12 +89,13 @@ class _BottomPlayListState extends State<BottomPlayList> {
                     return pre != next;
                   },
                   builder: (context, currentPlayId, child) {
-
                     return ListView.builder(
+                        //controller: _scrollController,
                         padding: EdgeInsets.zero,
                         primary: true,
                         shrinkWrap: true,
                         itemCount: musicInfoList.length,
+                        itemExtent: screenHeight * 0.09,
                         itemBuilder: (BuildContext context, int index) {
                           return ListTile(
                               textColor: currentPlayId == musicInfoList[index].getId ? Colors.red : musicInfoList[index].getDisabled ? Colors.black12 : Colors.black,

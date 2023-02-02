@@ -37,10 +37,6 @@ class _PlayListState extends State<PlayList> {
 
   _PlayListState(this.musicTagInfo);
 
- /* MusicTagInfo covertModel() {
-    return arguments['musicTagInfo'];
-  }*/
-
   void printResult(values) {
     setState(() {
       tracks = values['tracks'];
@@ -206,8 +202,6 @@ class _PlayListState extends State<PlayList> {
             }
         ),
       ),
-        // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        // floatingActionButton: Global.bottomPlayBar,
       bottomSheet: Global.bottomPlayBar,
     );
   }

@@ -4,7 +4,6 @@ import 'package:flutter_music_player/common/state/music_play_state.dart';
 import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-import '../model/music_info.dart';
 import 'bottom_play_list.dart';
 
 class PlayDetailPage extends StatefulWidget {
@@ -179,65 +178,6 @@ class _PlayDetailPageState extends State<PlayDetailPage> {
                           onPressed: () {
                             if(musicPlayState.currentPlayList.isNotEmpty) {
                               showModalBottomSheet(context: context, builder: (BuildContext context) {
-                                /*return Container(
-                                  height: screenHeight * 0.75,
-                                  color: Colors.white,
-                                  child: Column(
-                                    children: [
-                                      ListTile(
-                                        leading: Icon(Icons.repeat),
-                                        title: Text('播放列表(${musicPlayState.currentPlayList.length}首)'),
-                                      ),
-                                      Divider(),
-                                      Expanded(
-                                          child: Scrollbar(
-                                            child: Selector<MusicPlayState, String>(
-                                              selector: (context, state) {
-                                                return state.currentPlayId;
-                                              },
-                                              shouldRebuild: (pre, next){
-                                                return pre != next;
-                                              },
-                                              builder: (context, currentPlayId, child) {
-
-                                                List<MusicInfo> musicInfoList =
-                                                    musicPlayState.currentPlayList;
-
-                                                return ListView.builder(
-                                                    padding: EdgeInsets.zero,
-                                                    primary: true,
-                                                    shrinkWrap: true,
-                                                    itemCount: musicInfoList.length,
-                                                    itemBuilder: (BuildContext context, int index) {
-                                                      return ListTile(
-                                                          textColor: currentPlayId == musicInfoList[index].getId ? Colors.red : musicInfoList[index].getDisabled ? Colors.black12 : Colors.black,
-                                                          leading: Text((index+1).toString()),
-                                                          title: Text(
-                                                              musicInfoList[index].getTitle,
-                                                              overflow: TextOverflow.ellipsis
-                                                          ),
-                                                          subtitle: Text(musicInfoList[index].getArtist,overflow: TextOverflow.ellipsis),
-                                                          onTap: () {
-                                                            if(!musicInfoList[index].getDisabled) {
-                                                              musicPlayState.playMusicIndex(index);
-                                                            }
-                                                          },
-                                                          trailing: IconButton(
-                                                              onPressed: () {
-                                                                musicPlayState.remove(index);
-                                                              },
-                                                              icon: const Icon(Icons.close)
-                                                          )
-                                                      );
-                                                    }
-                                                );
-                                              },
-                                            ),
-                                          )
-                                      )
-                                    ],
-                                  ),
-                                );*/
 
                                 return const BottomPlayList();
                               });
