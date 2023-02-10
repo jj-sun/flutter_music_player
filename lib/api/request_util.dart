@@ -20,14 +20,15 @@ class RequestUtil {
     return response.data.toString();
   }
 
-  static Future<String?> postAction(url,{queryParameters, headers}) async {
+  static Future<String?> postAction(url,{data, headers}) async {
     var dio = Dio();
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =  (HttpClient client) {
       client.badCertificateCallback = (X509Certificate cert, String host, int port) =>true;
       return client;
     };
     dio.options.headers = headers;
-    Response response = await dio.post(url, queryParameters: queryParameters);
+    Response response = await dio.post<String>(url, data: data);
+    print('post: ${response.data.toString()}');
     if(response == null) {
       return '';
     }

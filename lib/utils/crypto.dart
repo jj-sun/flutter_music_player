@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:core';
 import 'package:encrypt/encrypt.dart';
-import 'package:string_to_hex/string_to_hex.dart';
+import 'package:convert/convert.dart';
+import 'package:pointycastle/asymmetric/api.dart';
+
 
 class CryptoUtil {
 
-  static String aesEncrypt(String text,String key,iv) {
+  static String aesEncrypt(String text,String key,String iv) {
     // const keyutf = CryptoJS.enc.Utf8.parse(key);
     // const ivBin = CryptoJS.enc.Utf8.parse(iv);
     // const enc = CryptoJS.AES.encrypt(text, keyutf, {
@@ -16,17 +18,17 @@ class CryptoUtil {
     // const encStr = enc.toString();
     //
     // return encStr;
-    var keyutf = Key.fromUtf8(key);
-    var ivBin = IV.fromUtf8(iv);
+    Key keyutf = Key.fromUtf8(key);
+
+    IV ivBin = IV.fromUtf8(iv);
 
     final encrypter = Encrypter(AES(keyutf, mode: AESMode.cbc));
     var enc = encrypter.encrypt(text, iv: ivBin);
-    var encStr = enc.toString();
-
+    var encStr = enc.base64.toString(); //需要用64位的
     return encStr;
   }
 
-  static String rsaEncrypt(text,key) {
+  static String rsaEncrypt(String text,String key) {
     /*const rsaEncryptObject = new JSEncrypt({ padding: 'RSA_ZERO_PADDING' });
 
     rsaEncryptObject.setPublicKey(key);
@@ -35,10 +37,14 @@ class CryptoUtil {
 
     return CryptoJS.enc.Hex.stringify(buf);*/
 
-    final encrypter = Encrypter(RSA(publicKey: key));
-    var secKey = encrypter.encrypt(text).toString();
-    var buf = base64.decoder.convert(secKey);
-    return StringToHex.toHexString(buf);
+    RSAPublicKey rsaPublicKey = RSAKeyParser().parse(key) as RSAPublicKey;
+
+
+    final encrypter = Encrypter(RSA(publicKey: rsaPublicKey));
+    Encrypted secKey = encrypter.encrypt(text);
+
+    //Uint8List buf = base64Decode(secKey.base64);
+    return hex.encode(secKey.bytes);
   }
 
   static String reverseString(String str) {
@@ -55,8 +61,8 @@ class CryptoUtil {
 
     for (int i = length; i > 0; --i) {
       int charLength = chars.length;
-      double random = Random().nextDouble() * charLength;
-      result += chars[random.floor()];
+      int random = Random().nextInt(charLength) ;
+      result += chars[random];
     }
     return result;
   }
@@ -69,6 +75,8 @@ class CryptoUtil {
 
     String text = jsonEncode(object);
     String secretKey = getRandomBase62(16);
+
+    print('随机字符串:${secretKey}');
 
     return <String, dynamic>{
       'params': aesEncrypt(aesEncrypt(text, presetKey, iv),secretKey,iv),
