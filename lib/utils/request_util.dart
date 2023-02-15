@@ -14,9 +14,7 @@ class RequestUtil {
     };
     dio.options.headers = headers;
     Response<String> response = await dio.get<String>(url, queryParameters: queryParameters);
-    if(response == null) {
-      return '';
-    }
+
     return response.data.toString();
   }
 
@@ -28,10 +26,7 @@ class RequestUtil {
     };
     dio.options.headers = headers;
     Response response = await dio.post<String>(url, data: data);
-    print('post: ${response.data.toString()}');
-    if(response == null) {
-      return '';
-    }
+
     return response.data.toString();
   }
 

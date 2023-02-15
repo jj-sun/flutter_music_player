@@ -2,7 +2,7 @@ import 'dart:core';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_music_player/api/request_util.dart';
+import 'package:flutter_music_player/utils/request_util.dart';
 import 'package:flutter_music_player/model/music_info.dart';
 import 'package:flutter_music_player/model/music_tag_info.dart';
 import 'dart:developer';

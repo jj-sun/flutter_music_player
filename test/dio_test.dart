@@ -2,7 +2,7 @@
 import 'dart:developer';
 
 import 'package:flutter_music_player/api/provider/netease.dart';
-import 'package:flutter_music_player/api/request_util.dart';
+import 'package:flutter_music_player/utils/request_util.dart';
 import 'package:flutter_music_player/utils/rsa_no_padding_encoding.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'dart:convert';

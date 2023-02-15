@@ -4,6 +4,7 @@ import 'dart:core';
 import 'package:encrypt/encrypt.dart';
 import 'package:convert/convert.dart';
 import 'package:pointycastle/asymmetric/api.dart';
+import 'package:flutter_music_player/utils/rsa_no_padding_encoding.dart';
 
 
 class CryptoUtil {
@@ -40,7 +41,7 @@ class CryptoUtil {
     RSAPublicKey rsaPublicKey = RSAKeyParser().parse(key) as RSAPublicKey;
 
 
-    final encrypter = Encrypter(RSA(publicKey: rsaPublicKey));
+    final encrypter = Encrypter(RSAExt(publicKey: rsaPublicKey));
     Encrypted secKey = encrypter.encrypt(text);
 
     //Uint8List buf = base64Decode(secKey.base64);

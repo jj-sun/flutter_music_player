@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:core';
-import 'package:flutter_music_player/api/request_util.dart';
+import 'package:flutter_music_player/utils/request_util.dart';
 import 'package:flutter_music_player/model/music_info.dart';
 
 import '../../model/music_tag_info.dart';
@@ -8,6 +8,7 @@ import '../../model/music_tag_info.dart';
 import '../../utils/crypto.dart';
 
 class NeteaseUtil {
+
   static Future requestAPI(String url, Map<String, dynamic> data) async {
     var headers = {
       'referer': 'https://music.163.com/',
@@ -50,7 +51,7 @@ class NeteaseUtil {
 
     list.forEach((item) {
       var musicTagInfo = MusicTagInfo(
-          getSmallImageUrl(item['coverImgurl']),
+          getSmallImageUrl(item['coverImgUrl']),
           item['name'],
           'neplaylist_${item['id']}',
           'http://music.163.com/#/playlist?id=${item['dissid']}');
