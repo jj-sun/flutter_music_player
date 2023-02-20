@@ -16,7 +16,10 @@ import 'package:pointycastle/asymmetric/api.dart';
 void main() {
 
   test('dio', () async {
-    await NeteaseUtil.showPlaylist(0).then((value) {
+
+    Netease netease = Netease();
+
+    await netease.showPlaylist(0).then((value) {
       print('结果: ${value.toString()}');
     });
   });
@@ -92,6 +95,16 @@ void main() {
     Encrypted secKey = encrypter.encrypt(text);
     print(secKey.base16);
     print(hex.encode(secKey.bytes));
+  });
+
+
+  test('测试base64和hex', () {
+    String str = 'hello';
+
+    print(base64Encode(str.codeUnits));
+    print(hex.encode(str.codeUnits));
+
+
   });
   
 }

@@ -5,6 +5,7 @@ import 'package:encrypt/encrypt.dart';
 import 'package:convert/convert.dart';
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:flutter_music_player/utils/rsa_no_padding_encoding.dart';
+import 'package:crypto/crypto.dart';
 
 
 class CryptoUtil {
@@ -85,4 +86,28 @@ class CryptoUtil {
     };
   }
 
+
+
+  static String aesEncrypt2(String text,String key) {
+    Key keyutf = Key.fromUtf8(key);
+    
+    final encrypter = Encrypter(AES(keyutf, mode: AESMode.ecb));
+    var enc = encrypter.encrypt(text, iv: IV.fromUtf8('0102030405060708'));
+    var encStr = enc.base64.toString(); //需要用64位的
+    return encStr;
+  }
+
+  static Map<String, dynamic> eapi(String url, Object object) {
+    String eapiKey = 'e82ckenh8dichen8';
+
+    String text = jsonEncode(object);
+
+    String message = 'nobody${url}use${text}md5forencrypt';
+    String digest = hex.encode(md5.convert(utf8.encode(message)).bytes);
+    String data = '${url}-36cd479b6b5-${text}-36cd479b6b5-${digest}';
+
+    return {
+      'params': aesEncrypt2(data, eapiKey).toUpperCase()
+    };
+  }
 }

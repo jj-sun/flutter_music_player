@@ -9,6 +9,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_music_player/common/state/music_play_state.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../api/client.dart';
+import '../api/client_factory.dart';
 import '../common/Global.dart';
 
 class PlayList extends StatefulWidget {
@@ -184,7 +186,8 @@ class _PlayListState extends State<PlayList> {
                         icon: Icon(Icons.more_vert)
                     ),
                     onTap: () {
-                      if(tracks[index-1].getDisabled) {
+                      musicPlayState.playNewMusic(tracks[index-1]);
+                      /*if(tracks[index-1].getDisabled) {
                         Fluttertoast.showToast(
                           msg: "平台版权原因无法播放，请尝试其他平台",
                           toastLength: Toast.LENGTH_SHORT,
@@ -195,7 +198,7 @@ class _PlayListState extends State<PlayList> {
                         );
                       } else {
                         musicPlayState.playNewMusic(tracks[index-1]);
-                      }
+                      }*/
                     },
                 );
               }
@@ -212,7 +215,8 @@ class _PlayListState extends State<PlayList> {
   void initState() {
     super.initState();
     //musicTagInfo = covertModel();
-    QQUtil.getPlaylist(musicTagInfo.getId).then((value){
+    Client client = ClientFactory.getFactory(musicTagInfo.getId.substring(0,2));
+    client.getPlaylist(musicTagInfo.getId).then((value){
       printResult(value);
     });
   }

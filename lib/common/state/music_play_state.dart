@@ -5,7 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_music_player/api/provider/qq.dart';
 import 'package:flutter_music_player/common/enums/music_mode_enum.dart';
 import 'package:flutter_music_player/model/music_info.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+
+import '../../api/client.dart';
+import '../../api/client_factory.dart';
 
 class MusicPlayState extends ChangeNotifier {
 
@@ -29,8 +33,20 @@ class MusicPlayState extends ChangeNotifier {
     if(_currentPlayList.isNotEmpty) {
       return _currentPlayList[_currentIndex];
     } else {
+      var d = MusicInfo();
+      d.setId('qqtrack_003YC3p31HyR96');
+      d.setTitle('最美的期待');
+      d.setArtist('周笔畅');
+      d.setArtistId('qqartist_004HlS192u9J5g');
+      d.setAlbum('最美的期待');
+      d.setAlbumId('qqalbum_001Qn04n29RAmP');
+      d.setImgUrl('');
+      d.setSource('qq');
+      d.setSourceUrl('http://y.qq.com/#type=song&mid=003YC3p31HyR96&tpl=yqq_song_detail');
+      d.setUrl('');
+
       //此处需要初始化一首歌
-      return MusicInfo('qqtrack_003YC3p31HyR96', '最美的期待', '周笔畅', 'qqartist_004HlS192u9J5g', '最美的期待', 'qqalbum_001Qn04n29RAmP', 'http://imgcache.qq.com/music/photo/mid_album_300/m/P/001Qn04n29RAmP.jpg', 'qq', 'http://y.qq.com/#type=song&mid=003YC3p31HyR96&tpl=yqq_song_detail', 'qqtrack_003YC3p31HyR96', false);
+      return d;
     }
   }
 
@@ -171,12 +187,22 @@ class MusicPlayState extends ChangeNotifier {
     }
     if(currentMusicInfo != null) {
       _currentPlayId = currentMusicInfo.getId;
-      QQUtil.bootstrapTrack(_currentPlayId).then((audioUrl) {
+      Client client = ClientFactory.getFactory(_currentPlayId.substring(0,2));
+
+      client.bootstrapTrack(_currentPlayId).then((audioUrl) {
         if(audioUrl.isNotEmpty) {
           _audioPlayer.play(UrlSource(audioUrl));
         } else {
-          print('如果播放源不存在，自动下一个');
-          musicControlNext();
+          Fluttertoast.showToast(
+            msg: "平台版权原因无法播放，请尝试其他平台",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black87,
+            textColor: Colors.white70,
+          ).then((value) {
+            musicControlNext();
+          });
         }
       });
     }
