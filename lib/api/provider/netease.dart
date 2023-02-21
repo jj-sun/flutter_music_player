@@ -1,9 +1,17 @@
 import 'dart:convert';
 import 'dart:core';
 import 'dart:html';
+import 'dart:io';
+import 'dart:math';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_music_player/api/client.dart';
 import 'package:flutter_music_player/utils/request_util.dart';
 import 'package:flutter_music_player/model/music_info.dart';
+import 'package:html/parser.dart' as htmlparser;
+import 'package:html/dom.dart' as dom;
+import 'package:cookie_jar/cookie_jar.dart';
+
 
 import '../../model/music_tag_info.dart';
 
@@ -29,8 +37,8 @@ class Netease implements Client {
     return '$url?param=140y140';
   }
 
-  @override
-  Future<List<MusicTagInfo>> showPlaylist(int offset) async {
+  /*@override
+  Future<List<MusicTagInfo>> showPlaylist(int offset, String? filterId) async {
     print('参数： ${offset}');
 
     Map<String, dynamic> query = {
@@ -65,11 +73,42 @@ class Netease implements Client {
     print('网易云playList: ${playlists}');
 
     return playlists;
+  }*/
+
+  Future<List<MusicTagInfo>> showTopList(int offset) async {
+    List<MusicTagInfo> playlists = [];
+    if(offset > 0) {
+      return playlists;
+    }
+
+    String url = 'https://music.163.com/weapi/toplist/detail';
+
+    String repData = await _requestAPI(url, {});
+
+    final Map<String, dynamic> object = jsonDecode(repData);
+
+    List<dynamic> list = object['list'];
+
+    list.forEach((item) {
+      var musicTagInfo = MusicTagInfo(
+          _getSmallImageUrl(item['coverImgUrl']),
+          item['name'],
+          'neplaylist_${item['id']}',
+          'http://music.163.com/#/playlist?id=${item['id']}');
+      playlists.add(musicTagInfo);
+    });
+
+    return playlists;
+
   }
 
-  void show(int offset, String? filterId) {
+  Future<List<MusicTagInfo>> showPlaylist(int offset, { String? filterId }) async {
 
     String order = 'hot';
+
+    if(filterId != null && filterId == 'toplist') {
+      return showTopList(offset);
+    }
 
     String filter = '';
     if(filterId != null && filterId.isNotEmpty) {
@@ -80,54 +119,76 @@ class Netease implements Client {
     if(offset > 0) {
       targetUrl = 'https://music.163.com/discover/playlist/?order=${order}${filter}&limit=35&offset=${offset}';
     } else {
-      targetUrl = 'https://music.163.com/discover/playlist/?order=${order}${filter}';
+     targetUrl = 'https://music.163.com/discover/playlist/?order=${order}${filter}';
     }
 
-    _requestAPI(targetUrl, {}).then((value) {
+    var respData = await RequestUtil.getAction(targetUrl);
 
-      List<Node> listElements = Element.html(value).getElementsByClassName('m-cvrlst').first.childNodes;
-      listElements.forEach((node) {
+    dom.Document document = htmlparser.parse(respData);
 
-      });
+
+    var listElements = document.getElementsByClassName('m-cvrlst').first.children;
+
+    List<MusicTagInfo> playlists = [];
+
+    listElements.forEach((element) {
+      //print(element.getElementsByTagName('img').first.attributes['src']?.replaceFirst('140y140', '512y512'));
+     // print(element.getElementsByTagName('div').first.getElementsByTagName('a').first.attributes['title']);
+      String? id = Uri.parse(element.getElementsByTagName('div').first.getElementsByTagName('a').first.attributes['href'].toString()).queryParameters['id'];
+      //print('neplaylist_${id}');
+      //print('https://music.163.com/#/playlist?id=${id}');
+
+      var musicTagInfo = MusicTagInfo(
+          element.getElementsByTagName('img').first.attributes['src'].toString(), //!.replaceFirst('140y140', '512y512')
+          element.getElementsByTagName('div').first.getElementsByTagName('a').first.attributes['title'].toString(),
+          'neplaylist_${id}',
+          'https://music.163.com/#/playlist?id=${id}');
+      playlists.add(musicTagInfo);
     });
 
+    return playlists;
 
   }
 
-  num _getNEScore(song) {
-    if (!song) return 0;
-    var privilege = song['privilege'];
-
-    if (song['program']) return 0;
-
-    if (privilege) {
-      if (privilege['st'] != null && privilege['st'] < 0) {
-        return 100;
-      }
-      if (privilege['fee'] > 0 &&
-          privilege['fee'] != 8 &&
-          privilege['payed'] == 0 &&
-          privilege['pl'] <= 0) return 10;
-      if (privilege['fee'] == 16 || (privilege['fee'] == 4 && privilege['flag'] & 2048))
-        return 11;
-      if ((privilege['fee'] == 0 || privilege['payed']) &&
-          privilege['pl'] > 0 &&
-          privilege['dl'] == 0) return 1e3;
-
-      if (privilege['pl'] == 0 && privilege['dl'] == 0) return 100;
-
-      return 0;
+  String _createSecretKey(int size) {
+    List<String> result = [];
+    List<String> choice = '012345679abcdef'.split('');
+    for (int i = 0; i < size; i += 1) {
+      int index = Random().nextInt(choice.length);
+      result.add(choice[index]);
     }
+    return result.join('');
 
-    if (song['status'] >= 0) return 0;
-    if (song['fee'] > 0) return 10;
-
-    return 100;
   }
 
-  bool _isPlayable(song) {
-    return _getNEScore(song) < 100;
+  Future ensureCookie() async {
+
+    String domain = 'https://music.163.com';
+    String nuidName = '_ntes_nuid';
+    String nnidName = '_ntes_nnid';
+
+    final cookieJar = CookieJar();
+
+    cookieJar.loadForRequest(Uri.parse(domain)).then((value) {
+      if(value.where((element) => element.name == nuidName).isEmpty) {
+        String nuidValue = _createSecretKey(32);
+        String nnidValue = '$nuidName,${DateTime.now().millisecond}';
+        // netease default cookie expire time: 100 years
+        DateTime expire = DateTime.now().add(const Duration(days: 100 * 365));
+        Cookie nuidNameCookie = Cookie(nuidName, nuidValue);
+        nuidNameCookie.expires = expire;
+
+        Cookie nnidNameCookie = Cookie(nnidName, nnidValue);
+        nnidNameCookie.expires = expire;
+
+        List<Cookie> cookies = [nuidNameCookie, nnidNameCookie];
+
+        cookieJar.saveFromResponse(Uri.parse(domain), cookies);
+      }
+    });
+
   }
+
 
   MusicInfo _convert(songInfo, allowAll) {
     var d = MusicInfo();
@@ -146,10 +207,28 @@ class Netease implements Client {
     return d;
   }
 
+  Future<List<MusicInfo>> _parsePlaylistTracks(track_ids) async {
+
+    String tracksUrl = 'https://music.163.com/weapi/v3/song/detail';
+
+    Map<String, dynamic> query = {
+      'c': '[' + track_ids.map((id) => '{"id":' + id.toString() + '}').join(',') + ']',
+      'ids': '[' + track_ids.join(',') + ']',
+    };
+
+    String response = await _requestAPI(tracksUrl, query);
+    final Map<String, dynamic> responseData = jsonDecode(response);
+    List<MusicInfo> tracks = [];
+    responseData['songs'].forEach((item) {
+      tracks.add(_convert(item, true));
+    });
+    return tracks;
+  }
+
   @override
   Future<Map<String, dynamic>> getPlaylist(String playlistId) async {
     String listId = playlistId.split('_').last;
-    Map<String, dynamic> data = {
+    Map<String, dynamic> query = {
       'id': listId,
       'offset': 0,
       'total': true,
@@ -159,13 +238,14 @@ class Netease implements Client {
     };
 
     const playlist_url = 'http://music.163.com/weapi/v3/playlist/detail';
-    const tracks_url = 'https://music.163.com/weapi/v3/song/detail';
 
-    return _requestAPI(playlist_url, data).then((resData) {
 
-      const JsonDecoder jsonDecoder = JsonDecoder();
-      final Map<String, dynamic> jsonData = jsonDecoder.convert(resData.toString());
-      //log(jsonData);
+    await ensureCookie();
+
+    String resData = await _requestAPI(playlist_url, query);
+
+    final Map<String, dynamic> jsonData = jsonDecode(resData.toString());
+    //log(jsonData);
 
     MusicTagInfo info = MusicTagInfo(_getSmallImageUrl(jsonData['playlist']['coverImgUrl'].toString()), jsonData['playlist']['name'], 'neplaylist_${listId}', 'http://music.163.com/#/playlist?id=${listId}');
     /*{
@@ -176,43 +256,53 @@ class Netease implements Client {
         'source_url': 'http://music.163.com/#/playlist?id=${listId}',
       };*/
 
-      // request all tracks to fetch song info
-      // Code reference from listen1_chrome_extension
+    // request all tracks to fetch song info
+    // Code reference from listen1_chrome_extension
 
-      List<dynamic> track_ids = jsonData['playlist']['trackIds'].map((i) => i['id']).toList();
-      Map<String, dynamic> data = {
-        'c': '[' + track_ids.map((id) => '{"id":' + id.toString() + '}').join(',') + ']',
-        'ids': '[' + track_ids.join(',') + ']',
-      };
+    List<dynamic> track_ids = jsonData['playlist']['trackIds'].map((i) => i['id']).toList();
 
-      return _requestAPI(tracks_url, data).then((response) {
-        final Map<String, dynamic> responseData = jsonDecoder.convert(response);
+    List<MusicInfo> tracks = await _parsePlaylistTracks(track_ids);
 
-        log(jsonEncode(responseData));
-        List<MusicInfo> tracks = [];
-        responseData['songs'].forEach((item) {
-          tracks.add(_convert(item, true));
-        });
-        return {'info': info, 'tracks': tracks};
-      });
-    });
+    return {'info': info, 'tracks': tracks};
   }
 
   @override
-  Future<String> bootstrapTrack(String trackId) {
+  Future<String> bootstrapTrack(String trackId) async {
     String url =
-        'http://music.163.com/weapi/song/enhance/player/url/v1?csrf_token=';
+        'https://interface3.music.163.com/eapi/song/enhance/player/url';
+
+    String eapiUrl = '/api/song/enhance/player/url';
 
     String songId = trackId.substring('netrack_'.length);
 
-    Map<String, dynamic> data = {
+    Map<String, dynamic> d = {
       'ids': [songId],
-      'level': 'standard',
-      'encodeType': 'aac',
-      'csrf_token': '',
+      'br': 999000,
     };
 
-    return _requestAPI(url, data).then((resData) {
+    var data = CryptoUtil.eapi(eapiUrl, d);
+
+    DateTime expire = DateTime.now().add(const Duration(days: 100 * 365));
+
+    final cookieJar = CookieJar();
+
+    Cookie cookie = Cookie('os', 'pc');
+    cookie.expires = expire;
+
+    var cookies = [cookie];
+
+    await cookieJar.saveFromResponse(Uri.parse('https://interface3.music.163.com'), cookies);
+
+    return RequestUtil.postAction(url, queryParameters: data).then((resData){
+      var jsonData = jsonDecode(resData!);
+      var songUrl = jsonData['data'][0]['url'];
+      if (songUrl == null) {
+        return '';
+      }
+      return songUrl;
+    });
+
+    /*return _requestAPI(url, data).then((resData) {
 
       var jsonData = jsonDecode(resData);
 
@@ -221,7 +311,7 @@ class Netease implements Client {
         return '';
       }
       return songUrl;
-    });
+    });*/
   }
 
   @override

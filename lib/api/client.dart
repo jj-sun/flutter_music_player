@@ -3,7 +3,7 @@ import '../model/music_tag_info.dart';
 
 abstract class Client {
 
-  Future<List<MusicTagInfo>> showPlaylist(int offset);
+  Future<List<MusicTagInfo>> showPlaylist(int offset, { String? filterId });
 
   Future<Map<String,dynamic>> search(String keyword, int page);
 

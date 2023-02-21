@@ -37,13 +37,18 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_swiper: ^1.1.6
   audioplayers: ^1.0.1
-  dio: ^4.0.6
+  dio: ^5.0.0
   encrypt: ^5.0.1
   pointycastle: ^3.6.2
   font_awesome_flutter: ^10.2.1
   provider: ^6.0.3
   go_router: ^6.0.1
   fluttertoast: ^8.1.2
+  flutter_html: ^2.2.1
+  dio_cookie_manager: ^2.1.0
+
+# Assets Audio Player 或 Just Audio 的 Just Audio Background 版本。如果您想更好地控制正在发生的事情，请尝试使用音频服务包装 Just Audio 或 AudioPlayers。
+#但是，如果您比较 Just Audio 和 AudioPlayers，Just Audio 更适合音乐流媒体应用，因为它提供了对播放列表的内置支持。
 
 dev_dependencies:
   flutter_test:

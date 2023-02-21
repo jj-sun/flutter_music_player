@@ -81,7 +81,7 @@ class QQ implements Client {
    */
    @override
    Future<List<MusicTagInfo>> showPlaylist(
-      int offset) async {
+      int offset,  { String? filterId }) async {
     String url =
         'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg?picmid=1&loginUin=0&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0&categoryId=10000000&sortId=5&sin=${offset}&ein=${29 + offset}';
     var data = await RequestUtil.getAction(

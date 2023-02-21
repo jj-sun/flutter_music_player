@@ -1,6 +1,9 @@
 
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:flutter_music_player/api/provider/netease.dart';
 import 'package:flutter_music_player/utils/request_util.dart';
 import 'package:flutter_music_player/utils/rsa_no_padding_encoding.dart';
@@ -12,6 +15,7 @@ import 'dart:typed_data';
 import 'package:encrypt/encrypt.dart';
 import 'package:convert/convert.dart';
 import 'package:pointycastle/asymmetric/api.dart';
+import 'package:dio/dio.dart';
 
 void main() {
 
@@ -104,7 +108,33 @@ void main() {
     print(base64Encode(str.codeUnits));
     print(hex.encode(str.codeUnits));
 
+  });
 
+  test('测试html', () async {
+
+    Netease netease = Netease();
+    await netease.showPlaylist(0);
+
+
+    print('#################################################');
+    /*var dio = Dio();
+    (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =  (HttpClient client) {
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) =>true;
+      return client;
+    };
+    dio.options.headers = null;
+    Response<String> response = await dio.get<String>('https://music.163.com/discover/playlist/?order=hot', queryParameters: null);
+    print(response.data.toString());*/
+  });
+  
+  test('网易toplist', () async {
+
+    Netease netease = Netease();
+
+    await netease.showTopList(0);
+
+    Cookie cookie = Cookie('', 'ss');
+    
   });
   
 }
