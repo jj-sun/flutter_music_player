@@ -11,7 +11,7 @@ class MusicInfo {
   late String _source;
   late String _sourceUrl;
   late String? _url;
-  late bool _disabled;
+  //late bool? _disabled;
 
   MusicInfo();
 
@@ -45,11 +45,17 @@ class MusicInfo {
   void setUrl(String? url) => _url = url;
   String? get getUrl => _url;
 
-  void setDisabled(bool disabled) => _disabled = disabled;
-  bool get getDisabled => _disabled;
+  /*void setDisabled(bool disabled) => _disabled = disabled;
+  bool? get getDisabled => _disabled;*/
 
   @override
   String toString() {
-    return 'MusicInfo{_id: $_id, _title: $_title, _artist: $_artist, _artistId: $_artistId, _album: $_album, _albumId: $_albumId, _imgUrl: $_imgUrl, _source: $_source, _sourceUrl: $_sourceUrl, _url: $_url, _disabled: $_disabled}';
+    if(getUrl == null || getUrl!.isEmpty) {
+      return 'MusicInfo{_id: $_id, _title: $_title, _artist: $_artist, _artistId: $_artistId, _album: $_album, _albumId: $_albumId, _imgUrl: $_imgUrl, _source: $_source, _sourceUrl: $_sourceUrl';
+
+    } else {
+      return 'MusicInfo{_id: $_id, _title: $_title, _artist: $_artist, _artistId: $_artistId, _album: $_album, _albumId: $_albumId, _imgUrl: $_imgUrl, _source: $_source, _sourceUrl: $_sourceUrl, _url: $_url';
+
+    }
   }
 }

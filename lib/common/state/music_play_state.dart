@@ -60,9 +60,7 @@ class MusicPlayState extends ChangeNotifier {
     //自动移除会员歌曲
     List<MusicInfo> musicList = [];
     for (var element in list) {
-      if(element.getDisabled != true) {
-        musicList.add(element);
-      }
+      musicList.add(element);
     }
 
     if(musicList.isNotEmpty) {
@@ -201,7 +199,9 @@ class MusicPlayState extends ChangeNotifier {
             backgroundColor: Colors.black87,
             textColor: Colors.white70,
           ).then((value) {
-            musicControlNext();
+            if(_currentPlayList.length > 1) {
+              musicControlNext();
+            }
           });
         }
       });

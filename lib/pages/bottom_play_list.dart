@@ -98,7 +98,7 @@ class _BottomPlayListState extends State<BottomPlayList> {
                         itemExtent: screenHeight * 0.09,
                         itemBuilder: (BuildContext context, int index) {
                           return ListTile(
-                              textColor: currentPlayId == musicInfoList[index].getId ? Colors.red : musicInfoList[index].getDisabled ? Colors.black12 : Colors.black,
+                              textColor: currentPlayId == musicInfoList[index].getId ? Colors.red : Colors.black,
                               leading: Text((index+1).toString()),
                               title: Text(
                                   musicInfoList[index].getTitle,
@@ -106,9 +106,9 @@ class _BottomPlayListState extends State<BottomPlayList> {
                               ),
                               subtitle: Text(musicInfoList[index].getArtist,overflow: TextOverflow.ellipsis),
                               onTap: () {
-                                if(!musicInfoList[index].getDisabled) {
-                                  musicPlayState.playMusicIndex(index);
-                                }
+
+                                musicPlayState.playMusicIndex(index);
+
                               },
                               trailing: IconButton(
                                   onPressed: () {

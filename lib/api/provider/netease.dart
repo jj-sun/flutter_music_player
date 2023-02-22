@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'dart:core';
-import 'dart:html';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_music_player/api/client.dart';
 import 'package:flutter_music_player/utils/request_util.dart';
 import 'package:flutter_music_player/model/music_info.dart';
@@ -172,7 +170,7 @@ class Netease implements Client {
     cookieJar.loadForRequest(Uri.parse(domain)).then((value) {
       if(value.where((element) => element.name == nuidName).isEmpty) {
         String nuidValue = _createSecretKey(32);
-        String nnidValue = '$nuidName,${DateTime.now().millisecond}';
+        String nnidValue = '$nuidName%2C${DateTime.now().millisecondsSinceEpoch}';
         // netease default cookie expire time: 100 years
         DateTime expire = DateTime.now().add(const Duration(days: 100 * 365));
         Cookie nuidNameCookie = Cookie(nuidName, nuidValue);
@@ -293,7 +291,8 @@ class Netease implements Client {
 
     await cookieJar.saveFromResponse(Uri.parse('https://interface3.music.163.com'), cookies);
 
-    return RequestUtil.postAction(url, queryParameters: data).then((resData){
+    return RequestUtil.postAction(url, data: data).then((resData){
+      print(resData);
       var jsonData = jsonDecode(resData!);
       var songUrl = jsonData['data'][0]['url'];
       if (songUrl == null) {

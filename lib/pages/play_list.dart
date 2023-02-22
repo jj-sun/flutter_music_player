@@ -44,7 +44,7 @@ class _PlayListState extends State<PlayList> {
       tracks = values['tracks'];
       tagInfo = values['info'];
     });
-    log(values['tracks'].toString());
+    //log(values['tracks'].toString());
   }
 
 
@@ -126,7 +126,7 @@ class _PlayListState extends State<PlayList> {
               } else {
                 return ListTile(
                     leading: tracks[index-1].getImgUrl.isEmpty ? Image.asset('assets/lady.jpeg',fit: BoxFit.fill,width: screenWidth*0.12, height: screenHeight*0.05,) : Image.network(tracks[index-1].getImgUrl,fit: BoxFit.fill, width: screenWidth*0.12, height: screenHeight*0.05,),
-                    textColor: tracks[index-1].getDisabled ? Colors.black12 : Colors.black,
+                    textColor: Colors.black,
                     title: Text(tracks[index-1].getTitle),
                     subtitle: Text('${tracks[index-1].getArtist} - ${tracks[index-1].getAlbum}',maxLines: 1, overflow: TextOverflow.ellipsis,),
                     trailing: IconButton(
