@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter_music_player/api/provider/netease.dart';
+import 'package:flutter_music_player/utils/crypto.dart';
 import 'package:flutter_music_player/utils/request_util.dart';
 import 'package:flutter_music_player/utils/rsa_no_padding_encoding.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -135,6 +136,19 @@ void main() {
 
     Cookie cookie = Cookie('', 'ss');
     
+  });
+
+  test('eapi测试', () async {
+
+    String eapiUrl = '/api/song/enhance/player/url';
+    Map<String, dynamic> d = {
+      'ids': ['123456'],
+      'br': 999000,
+    };
+
+    var data = CryptoUtil.eapi(eapiUrl, d);
+    print(data);
+
   });
   
 }

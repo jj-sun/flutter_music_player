@@ -26,7 +26,6 @@ class RequestUtil {
     init();
     dio.options.headers = headers;
     Response response = await dio.post<String>(url, queryParameters: queryParameters,data: data);
-
     return response.data.toString();
   }
 

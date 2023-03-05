@@ -93,7 +93,8 @@ class CryptoUtil {
     
     final encrypter = Encrypter(AES(keyutf, mode: AESMode.ecb));
     var enc = encrypter.encrypt(text, iv: IV.fromUtf8('0102030405060708'));
-    var encStr = enc.base64.toString(); //需要用64位的
+    //var encStr = enc.base64.toString(); //需要用64位的
+    var encStr = hex.encode(enc.bytes);
     return encStr;
   }
 
@@ -105,6 +106,7 @@ class CryptoUtil {
     String message = 'nobody${url}use${text}md5forencrypt';
     String digest = hex.encode(md5.convert(utf8.encode(message)).bytes);
     String data = '${url}-36cd479b6b5-${text}-36cd479b6b5-${digest}';
+    //print(data);
 
     return {
       'params': aesEncrypt2(data, eapiKey).toUpperCase()

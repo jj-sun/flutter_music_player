@@ -19,13 +19,15 @@ import 'dart:developer';
 
 class Netease implements Client {
 
+  var headers = {
+    'referer': 'https://music.163.com/',
+    'content-type': 'application/x-www-form-urlencoded',
+    'user-agent':
+    'Mozilla/5.0 (Linux; U; Android 8.1.0; zh-cn; BLA-AL00 Build/HUAWEIBLA-AL00) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 MQQBrowser/8.9 Mobile Safari/537.36',
+  };
+
   Future _requestAPI(String url, Map<String, dynamic> data) async {
-    var headers = {
-      'referer': 'https://music.163.com/',
-      'content-type': 'application/x-www-form-urlencoded',
-      'user-agent':
-          'Mozilla/5.0 (Linux; U; Android 8.1.0; zh-cn; BLA-AL00 Build/HUAWEIBLA-AL00) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 MQQBrowser/8.9 Mobile Safari/537.36',
-    };
+
     var query = CryptoUtil.weapi(data);
     print(query);
     return await RequestUtil.postAction(url, data: query, headers: headers);
@@ -291,8 +293,8 @@ class Netease implements Client {
 
     await cookieJar.saveFromResponse(Uri.parse('https://interface3.music.163.com'), cookies);
 
-    return RequestUtil.postAction(url, data: data).then((resData){
-      print(resData);
+    return RequestUtil.postAction(url, data: data, headers: headers).then((resData){
+      print('结果：${resData}');
       var jsonData = jsonDecode(resData!);
       var songUrl = jsonData['data'][0]['url'];
       if (songUrl == null) {
@@ -341,7 +343,7 @@ class Netease implements Client {
     Iterable<Match> r =
         '/\/\/music\.163\.com\/playlist\/([0-9]+)/g'.allMatches(url);
 
-    if (r != null) {
+    if (r.isNotEmpty) {
       return {
         'type': 'playlist',
         'id': 'neplaylist_${r.toList()[1].group(0)}',
