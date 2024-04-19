@@ -2,18 +2,26 @@ import 'package:flutter/material.dart';
 
 enum CurrentTheme { dark, light }
 
-
 final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
-    buttonColor: Colors.white,
+    buttonTheme: const ButtonThemeData(buttonColor: Colors.black),
     unselectedWidgetColor: Colors.white,
-    primaryTextTheme:
-         const TextTheme(caption:  TextStyle(color: Colors.white)));
+    primaryTextTheme: const TextTheme(caption: TextStyle(color: Colors.white)),
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: Colors.white,
+      background: Colors.white,
+    )
+);
+
 
 final ThemeData lightTheme = ThemeData(
     primaryColor: Colors.blue,
-    backgroundColor: Colors.white,
-    buttonColor: Colors.black,
+    buttonTheme: const ButtonThemeData(buttonColor: Colors.black),
     unselectedWidgetColor: Colors.white,
-    primaryTextTheme:
-         const TextTheme(caption:  TextStyle(color: Colors.white)));
+    primaryTextTheme: const TextTheme(caption: TextStyle(color: Colors.white)),
+    colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.white,
+        background: Colors.white,
+
+    )
+);
